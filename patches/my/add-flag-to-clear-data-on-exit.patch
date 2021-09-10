@@ -1,32 +1,15 @@
 --- a/chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager.cc
 +++ b/chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager.cc
-@@ -138,6 +138,18 @@ class BrowsingDataRemoverObserver
-   std::unique_ptr<ScopedKeepAlive> keep_alive_;
- };
- 
-+uint64_t AllOriginTypeMask() {
-+  return 0;
-+}
-+
-+uint64_t AllRemoveMask() {
-+  return content::BrowsingDataRemover::DATA_TYPE_CACHE |
-+         content::BrowsingDataRemover::DATA_TYPE_DOWNLOADS |
-+         chrome_browsing_data_remover::DATA_TYPE_FORM_DATA |
-+         chrome_browsing_data_remover::DATA_TYPE_HISTORY |
+@@ -146,11 +146,9 @@ uint64_t AllOriginTypeMask() {
+ uint64_t AllRemoveMask() {
+   return content::BrowsingDataRemover::DATA_TYPE_CACHE |
+          content::BrowsingDataRemover::DATA_TYPE_DOWNLOADS |
+-         chrome_browsing_data_remover::DATA_TYPE_CONTENT_SETTINGS |
+          chrome_browsing_data_remover::DATA_TYPE_FORM_DATA |
+          chrome_browsing_data_remover::DATA_TYPE_HISTORY |
+-         chrome_browsing_data_remover::DATA_TYPE_PASSWORDS |
+-         chrome_browsing_data_remover::DATA_TYPE_SITE_DATA;
 +         chrome_browsing_data_remover::DATA_TYPE_PASSWORDS;
-+}
-+
+ }
+ 
  uint64_t GetOriginTypeMask(const base::Value& data_types) {
-   uint64_t result = 0;
-   for (const auto& data_type : data_types.GetList()) {
-@@ -296,8 +308,8 @@ void ChromeBrowsingDataLifetimeManager::
-                                 KeepAliveRestartOption::DISABLED)
-                           : nullptr;
-     remover->RemoveAndReply(base::Time(), base::Time::Max(),
--                            cdoe ? 0xffffffffffffffffull : GetRemoveMask(*data_types),
--                            cdoe ? 0xffffffffffffffffull : GetOriginTypeMask(*data_types),
-+                            cdoe ? AllRemoveMask() : GetRemoveMask(*data_types),
-+                            cdoe ? AllOriginTypeMask() : GetOriginTypeMask(*data_types),
-                             BrowsingDataRemoverObserver::Create(
-                                 remover, /*filterable_deletion=*/true, profile_,
-                                 std::move(keep_alive)));
