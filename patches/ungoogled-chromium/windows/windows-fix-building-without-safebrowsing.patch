@@ -2744,7 +2744,7 @@
  #include "components/browsing_data/core/pref_names.h"
  #include "components/certificate_transparency/pref_names.h"
  #include "components/content_settings/core/browser/host_content_settings_map.h"
-@@ -385,16 +384,12 @@
+@@ -386,16 +385,12 @@
  #endif
  
  #if defined(OS_WIN)
@@ -2761,7 +2761,7 @@
  #endif
  
  #if defined(OS_WIN) || defined(OS_MAC)
-@@ -1017,8 +1012,6 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -1018,8 +1013,6 @@ void RegisterLocalState(PrefRegistrySimp
    registry->RegisterBooleanPref(prefs::kRendererCodeIntegrityEnabled, true);
    registry->RegisterBooleanPref(
        policy::policy_prefs::kNativeWindowOcclusionEnabled, true);
@@ -2770,7 +2770,7 @@
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
    IncompatibleApplicationsUpdater::RegisterLocalStatePrefs(registry);
    ModuleDatabase::RegisterLocalStatePrefs(registry);
-@@ -1108,8 +1101,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -1109,8 +1102,6 @@ void RegisterProfilePrefs(user_prefs::Pr
    QuietNotificationPermissionUiState::RegisterProfilePrefs(registry);
    RegisterBrowserUserPrefs(registry);
    SearchPrefetchService::RegisterProfilePrefs(registry);
@@ -2779,7 +2779,7 @@
    security_interstitials::InsecureFormBlockingPage::RegisterProfilePrefs(
        registry);
    segmentation_platform::SegmentationPlatformService::RegisterProfilePrefs(
-@@ -1306,12 +1297,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -1307,12 +1298,6 @@ void RegisterProfilePrefs(user_prefs::Pr
  #endif
  
  #if defined(OS_WIN)
