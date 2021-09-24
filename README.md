@@ -2,6 +2,19 @@
 
 Windows packaging for [ungoogled-chromium](//github.com/Eloston/ungoogled-chromium).
 
+## Official Build, GPO, and ThinLTO
+
+LLVM is upgraded to 13.0.0-RC3, otherwise it crashes at the "ThinLTO Bitcode Writer" pass. 
+
+`llvm-pdbutil` and `llvm-undname` have to be manually compiled from source code as they are not shipped with the LLVM distribution. 
+
+To download the PGO profile for Win64:
+
+```cmd
+set PATH=path\to\depot_tools;%PATH%
+python3 build/src/tools/update_pgo_profiles.py --target=win64 update --gs-url-base=chromium-optimization-profiles/pgo_profiles
+```
+
 ## Downloads
 
 [Download binaries from the Contributor Binaries website](//ungoogled-software.github.io/ungoogled-chromium-binaries/).
