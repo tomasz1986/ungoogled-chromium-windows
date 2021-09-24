@@ -4364,21 +4364,17 @@
      "//components/subresource_filter/core/browser:test_support",
 --- a/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc
 +++ b/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc
-@@ -107,12 +107,7 @@ ContentSubresourceFilterThrottleManager:
+@@ -107,9 +107,6 @@ ContentSubresourceFilterThrottleManager:
      VerifiedRulesetDealer::Handle* dealer_handle,
      ContentSubresourceFilterWebContentsHelper& web_contents_helper,
      content::NavigationHandle& initiating_navigation_handle) {
 -  if (!base::FeatureList::IsEnabled(kSafeBrowsingSubresourceFilter))
 -    return nullptr;
 -
--  return std::make_unique<ContentSubresourceFilterThrottleManager>(
--      profile_context, database_manager, dealer_handle, web_contents_helper,
--      initiating_navigation_handle);
-+  return nullptr;
- }
- 
- // static
-@@ -558,13 +553,6 @@ void ContentSubresourceFilterThrottleMan
+   return std::make_unique<ContentSubresourceFilterThrottleManager>(
+       profile_context, database_manager, dealer_handle, web_contents_helper,
+       initiating_navigation_handle);
+@@ -558,13 +555,6 @@ void ContentSubresourceFilterThrottleMan
    DCHECK(!navigation_handle->IsSameDocument());
    DCHECK(!ShouldInheritActivation(navigation_handle->GetURL()));
  
