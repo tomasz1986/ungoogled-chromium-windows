@@ -22,3 +22,4 @@ ungoogled-chromium/windows/windows-fix-rc-terminating-error.patch
 my/add-flag-to-clear-data-on-exit.patch
 my/customize-hotkeys.patch
 my/default-to-https.patch
+my/close-window-with-multiple-tabs.patch
