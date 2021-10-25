@@ -2,6 +2,8 @@
 
 Windows packaging for [ungoogled-chromium](//github.com/Eloston/ungoogled-chromium).
 
+**This version contains some customizations (`patches/my`). Please remove those patches or use "update" branch for the vanilla ungoogled-chromium-windows.**
+
 ## Official Build, GPO, and ThinLTO
 
 LLVM is upgraded to 13.0.0, otherwise it crashes at the "ThinLTO Bitcode Writer" pass. 
