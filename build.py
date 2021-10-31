@@ -104,84 +104,87 @@ def main():
     downloads_cache = _ROOT_DIR / 'build' / 'downloads_cache'
     domsubcache = _ROOT_DIR / 'build' / 'domsubcache.tar.gz'
 
-    # Setup environment
-    source_tree.mkdir(parents=True, exist_ok=True)
-    downloads_cache.mkdir(parents=True, exist_ok=True)
-    _make_tmp_paths()
+    first_time = not (source_tree / 'BUILD.gn').exists()
 
-    # Get download metadata (DownloadInfo)
-    download_info = downloads.DownloadInfo([
-        _ROOT_DIR / 'downloads.ini',
-        _ROOT_DIR / 'ungoogled-chromium' / 'downloads.ini',
-    ])
+    if first_time:
+        # Setup environment
+        source_tree.mkdir(parents=True, exist_ok=True)
+        downloads_cache.mkdir(parents=True, exist_ok=True)
+        _make_tmp_paths()
 
-    # Retrieve downloads
-    get_logger().info('Downloading required files...')
-    downloads.retrieve_downloads(download_info, downloads_cache, True,
-                                          args.disable_ssl_verification)
-    try:
-        downloads.check_downloads(download_info, downloads_cache)
-    except downloads.HashMismatchError as exc:
-        get_logger().error('File checksum does not match: %s', exc)
-        exit(1)
+        # Get download metadata (DownloadInfo)
+        download_info = downloads.DownloadInfo([
+            _ROOT_DIR / 'downloads.ini',
+            _ROOT_DIR / 'ungoogled-chromium' / 'downloads.ini',
+        ])
 
-    # Unpack downloads
-    extractors = {
-        ExtractorEnum.SEVENZIP: args.sevenz_path,
-        ExtractorEnum.WINRAR: args.winrar_path,
-    }
-    get_logger().info('Unpacking downloads...')
-    downloads.unpack_downloads(download_info, downloads_cache, source_tree, extractors)
+        # Retrieve downloads
+        get_logger().info('Downloading required files...')
+        downloads.retrieve_downloads(download_info, downloads_cache, True,
+                                              args.disable_ssl_verification)
+        try:
+            downloads.check_downloads(download_info, downloads_cache)
+        except downloads.HashMismatchError as exc:
+            get_logger().error('File checksum does not match: %s', exc)
+            exit(1)
 
-    # Prune binaries
-    unremovable_files = prune_binaries.prune_dir(
-        source_tree,
-        (_ROOT_DIR / 'ungoogled-chromium' / 'pruning.list').read_text(encoding=ENCODING).splitlines()
-    )
-    if unremovable_files:
-        get_logger().error('Files could not be pruned: %s', unremovable_files)
-        parser.exit(1)
+        # Unpack downloads
+        extractors = {
+            ExtractorEnum.SEVENZIP: args.sevenz_path,
+            ExtractorEnum.WINRAR: args.winrar_path,
+        }
+        get_logger().info('Unpacking downloads...')
+        downloads.unpack_downloads(download_info, downloads_cache, source_tree, extractors)
 
-    # Apply patches
-    # First, ungoogled-chromium-patches
-    patches.apply_patches(
-        patches.generate_patches_from_series(_ROOT_DIR / 'ungoogled-chromium' / 'patches', resolve=True),
-        source_tree,
-        patch_bin_path=(source_tree / _PATCH_BIN_RELPATH)
-    )
-    # Then Windows-specific patches
-    patches.apply_patches(
-        patches.generate_patches_from_series(_ROOT_DIR / 'patches', resolve=True),
-        source_tree,
-        patch_bin_path=(source_tree / _PATCH_BIN_RELPATH)
-    )
+        # Prune binaries
+        unremovable_files = prune_binaries.prune_dir(
+            source_tree,
+            (_ROOT_DIR / 'ungoogled-chromium' / 'pruning.list').read_text(encoding=ENCODING).splitlines()
+        )
+        if unremovable_files:
+            get_logger().error('Files could not be pruned: %s', unremovable_files)
+            parser.exit(1)
 
-    # Substitute domains
-    domain_substitution.apply_substitution(
-        _ROOT_DIR / 'ungoogled-chromium' / 'domain_regex.list',
-        _ROOT_DIR / 'ungoogled-chromium' / 'domain_substitution.list',
-        source_tree,
-        domsubcache
-    )
+        # Apply patches
+        # First, ungoogled-chromium-patches
+        patches.apply_patches(
+            patches.generate_patches_from_series(_ROOT_DIR / 'ungoogled-chromium' / 'patches', resolve=True),
+            source_tree,
+            patch_bin_path=(source_tree / _PATCH_BIN_RELPATH)
+        )
+        # Then Windows-specific patches
+        patches.apply_patches(
+            patches.generate_patches_from_series(_ROOT_DIR / 'patches', resolve=True),
+            source_tree,
+            patch_bin_path=(source_tree / _PATCH_BIN_RELPATH)
+        )
 
-    # Output args.gn
-    (source_tree / 'out/Default').mkdir(parents=True)
-    gn_flags = (_ROOT_DIR / 'ungoogled-chromium' / 'flags.gn').read_text(encoding=ENCODING)
-    gn_flags += '\n'
-    gn_flags += (_ROOT_DIR / 'flags.windows.gn').read_text(encoding=ENCODING)
-    (source_tree / 'out/Default/args.gn').write_text(gn_flags, encoding=ENCODING)
+        # Substitute domains
+        domain_substitution.apply_substitution(
+            _ROOT_DIR / 'ungoogled-chromium' / 'domain_regex.list',
+            _ROOT_DIR / 'ungoogled-chromium' / 'domain_substitution.list',
+            source_tree,
+            domsubcache
+        )
+
+        # Output args.gn
+        (source_tree / 'out/Default').mkdir(parents=True)
+        gn_flags = (_ROOT_DIR / 'ungoogled-chromium' / 'flags.gn').read_text(encoding=ENCODING)
+        gn_flags += '\n'
+        gn_flags += (_ROOT_DIR / 'flags.windows.gn').read_text(encoding=ENCODING)
+        (source_tree / 'out/Default/args.gn').write_text(gn_flags, encoding=ENCODING)
 
     # Enter source tree to run build commands
     os.chdir(source_tree)
 
-    # Run GN bootstrap
-    _run_build_process(
-        sys.executable, 'tools\\gn\\bootstrap\\bootstrap.py', '-o', 'out\\Default\\gn.exe',
-        '--skip-generate-buildfiles')
+    if first_time:
+        # Run GN bootstrap
+        _run_build_process(
+            sys.executable, 'tools\\gn\\bootstrap\\bootstrap.py', '-o', 'out\\Default\\gn.exe',
+            '--skip-generate-buildfiles')
 
-    # Run gn gen
-    _run_build_process('out\\Default\\gn.exe', 'gen', 'out\\Default', '--fail-on-unused-args')
-
+        # Run gn gen
+        _run_build_process('out\\Default\\gn.exe', 'gen', 'out\\Default', '--fail-on-unused-args')
     # Run ninja
     _run_build_process('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
                        'chromedriver', 'mini_installer')
