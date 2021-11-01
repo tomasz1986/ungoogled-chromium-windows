@@ -104,9 +104,7 @@ def main():
     downloads_cache = _ROOT_DIR / 'build' / 'downloads_cache'
     domsubcache = _ROOT_DIR / 'build' / 'domsubcache.tar.gz'
 
-    first_time = not (source_tree / 'BUILD.gn').exists()
-
-    if first_time:
+    if not (source_tree / 'BUILD.gn').exists():
         # Setup environment
         source_tree.mkdir(parents=True, exist_ok=True)
         downloads_cache.mkdir(parents=True, exist_ok=True)
@@ -167,6 +165,7 @@ def main():
             domsubcache
         )
 
+    if not (source_tree / 'out/Default').exists():
         # Output args.gn
         (source_tree / 'out/Default').mkdir(parents=True)
         gn_flags = (_ROOT_DIR / 'ungoogled-chromium' / 'flags.gn').read_text(encoding=ENCODING)
@@ -177,7 +176,7 @@ def main():
     # Enter source tree to run build commands
     os.chdir(source_tree)
 
-    if first_time:
+    if not os.path.exists('out\\Default\\gn.exe'):
         # Run GN bootstrap
         _run_build_process(
             sys.executable, 'tools\\gn\\bootstrap\\bootstrap.py', '-o', 'out\\Default\\gn.exe',
@@ -186,8 +185,11 @@ def main():
         # Run gn gen
         _run_build_process('out\\Default\\gn.exe', 'gen', 'out\\Default', '--fail-on-unused-args')
     # Run ninja
-    _run_build_process('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
-                       'chromedriver', 'mini_installer')
+    try:
+        _run_build_process('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
+                           'chromedriver', 'mini_installer', timeout=4*60*60)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 if __name__ == '__main__':

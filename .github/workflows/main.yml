@@ -9,8 +9,37 @@ jobs:
         submodules: 'recursive'
     - name: Init
       run: |
-        ls
         Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
+    - name: Build
+      run: |
+        cd C:\ungoogled-chromium-windows
+        python build.py
+    - name: Prepare Artifacts
+      run: |
+        Compress-Archive -Path C:\ungoogled-chromium-windows\build\src -DestinationPath C:\ungoogled-chromium-windows\artifacts.zip
+        Write-Host((Get-Item C:\ungoogled-chromium-windows\artifacts.zip).length/1GB)
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\artifacts.zip
+  build-2:
+    needs: build
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Init
+      run: |
+        Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
+    - uses: actions/download-artifact@v2
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\build
+    - name: Unpack Artifacts
+      run: |
+        Expand-Archive -LiteralPath C:\ungoogled-chromium-windows\build\artifacts.zip -DestinationPath C:\ungoogled-chromium-windows\build
+        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
     - name: Build
       run: |
         cd C:\ungoogled-chromium-windows
