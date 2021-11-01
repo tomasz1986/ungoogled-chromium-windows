@@ -16,12 +16,12 @@ jobs:
         python build.py
     - name: Prepare Artifacts
       run: |
-        Compress-Archive -Path C:\ungoogled-chromium-windows\build\src -DestinationPath C:\ungoogled-chromium-windows\artifacts.zip
-        Write-Host((Get-Item C:\ungoogled-chromium-windows\artifacts.zip).length/1GB)
+        7z a C:\ungoogled-chromium-windows\artifacts.7z C:\ungoogled-chromium-windows\build\src
+        Write-Host((Get-Item C:\ungoogled-chromium-windows\artifacts.7z).length/1GB)
     - uses: actions/upload-artifact@v2
       with:
         name: my-artifact
-        path: C:\ungoogled-chromium-windows\artifacts.zip
+        path: C:\ungoogled-chromium-windows\artifacts.7z
   build-2:
     needs: build
     runs-on: windows-latest
@@ -38,8 +38,8 @@ jobs:
         path: C:\ungoogled-chromium-windows\build
     - name: Unpack Artifacts
       run: |
-        Expand-Archive -LiteralPath C:\ungoogled-chromium-windows\build\artifacts.zip -DestinationPath C:\ungoogled-chromium-windows\build
-        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
+        7z x C:\ungoogled-chromium-windows\build\artifacts.7z -oC:\ungoogled-chromium-windows\build -y
+        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.7z
     - name: Build
       run: |
         cd C:\ungoogled-chromium-windows
