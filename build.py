@@ -9,6 +9,8 @@ ungoogled-chromium build script for Microsoft Windows
 """
 
 import sys
+import time
+
 if sys.version_info.major < 3 or sys.version_info.minor < 6:
     raise RuntimeError('Python 3.6+ is required for this script. You have: {}.{}'.format(
         sys.version_info.major, sys.version_info.minor))
@@ -18,6 +20,8 @@ import os
 import re
 import shutil
 import subprocess
+import signal
+import multiprocessing
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'ungoogled-chromium' / 'utils'))
@@ -66,6 +70,28 @@ def _run_build_process(*args, **kwargs):
                    check=True,
                    encoding=ENCODING,
                    **kwargs)
+
+
+def _run_build_process_timeout(*args, timeout):
+    """
+    Runs the subprocess with the correct environment variables for building
+    """
+    # Add call to set VC variables
+    cmd_input = ['call "%s" >nul' % _get_vcvars_path()]
+    cmd_input.append('set DEPOT_TOOLS_WIN_TOOLCHAIN=0')
+    cmd_input.append(' '.join(map('"{}"'.format, args)))
+    cmd_input.append('exit\n')
+    with subprocess.Popen(('cmd.exe', '/k'), encoding=ENCODING, stdin=subprocess.PIPE) as proc:
+        p = multiprocessing.Process(target=_timeout, args=(proc.pid, timeout))
+        p.start()
+        proc.communicate('\n'.join(cmd_input))
+        p.kill()
+        p.join()
+
+
+def _timeout(pid, t):
+    time.sleep(t)
+    os.kill(pid, signal.CTRL_C_EVENT)
 
 
 def _make_tmp_paths():
@@ -185,11 +211,8 @@ def main():
         # Run gn gen
         _run_build_process('out\\Default\\gn.exe', 'gen', 'out\\Default', '--fail-on-unused-args')
     # Run ninja
-    try:
-        _run_build_process('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
-                           'chromedriver', 'mini_installer', timeout=600)
-    except subprocess.TimeoutExpired:
-        pass
+    _run_build_process_timeout('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
+                               'chromedriver', 'mini_installer', timeout=600)
 
 
 if __name__ == '__main__':
