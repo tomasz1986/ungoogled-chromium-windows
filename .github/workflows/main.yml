@@ -53,41 +53,131 @@ jobs:
         7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
       continue-on-error: true
     - uses: actions/upload-artifact@v2
-      if: steps.build.outcome == 'success'
+      if: steps.build.outcome != 'success'
       with:
         name: my-artifact
+        path: C:\ungoogled-chromium-windows\artifacts.zip
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome == 'success'
+      with:
+        name: chromium
         path: C:\ungoogled-chromium-windows\build\ungoogled-chromium*
   build-3:
     needs: build-2
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: Init
-        run: |
-          Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
-      - uses: actions/download-artifact@v2
-        with:
-          name: my-artifact
-          path: C:\ungoogled-chromium-windows\build
-      - name: Unpack Artifacts
-        run: |
-          7z x C:\ungoogled-chromium-windows\build\artifacts.zip -oC:\ungoogled-chromium-windows\build -y
-          Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
-      - name: Build
-        id: build
-        run: |
-          cd C:\ungoogled-chromium-windows
-          python build.py
-        continue-on-error: true
-      - name: Prepare Artifacts
-        if: steps.build.outcome != 'success'
-        run: |
-          7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
-        continue-on-error: true
-      - uses: actions/upload-artifact@v2
-        if: steps.build.outcome == 'success'
-        with:
-          name: my-artifact
-          path: C:\ungoogled-chromium-windows\build\ungoogled-chromium*
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Init
+      run: |
+        Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
+    - uses: actions/download-artifact@v2
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\build
+    - name: Unpack Artifacts
+      run: |
+        7z x C:\ungoogled-chromium-windows\build\artifacts.zip -oC:\ungoogled-chromium-windows\build -y
+        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
+    - name: Build
+      id: build
+      run: |
+        cd C:\ungoogled-chromium-windows
+        python build.py
+      continue-on-error: true
+    - name: Prepare Artifacts
+      if: steps.build.outcome != 'success'
+      run: |
+        7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
+      continue-on-error: true
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome != 'success'
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\artifacts.zip
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome == 'success'
+      with:
+        name: chromium
+        path: C:\ungoogled-chromium-windows\build\ungoogled-chromium*
+
+  build-4:
+    needs: build-3
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Init
+      run: |
+        Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
+    - uses: actions/download-artifact@v2
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\build
+    - name: Unpack Artifacts
+      run: |
+        7z x C:\ungoogled-chromium-windows\build\artifacts.zip -oC:\ungoogled-chromium-windows\build -y
+        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
+    - name: Build
+      id: build
+      run: |
+        cd C:\ungoogled-chromium-windows
+        python build.py
+      continue-on-error: true
+    - name: Prepare Artifacts
+      if: steps.build.outcome != 'success'
+      run: |
+        7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
+      continue-on-error: true
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome != 'success'
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\artifacts.zip
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome == 'success'
+      with:
+        name: chromium
+        path: C:\ungoogled-chromium-windows\build\ungoogled-chromium*
+
+  build-5:
+    needs: build-4
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Init
+      run: |
+        Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
+    - uses: actions/download-artifact@v2
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\build
+    - name: Unpack Artifacts
+      run: |
+        7z x C:\ungoogled-chromium-windows\build\artifacts.zip -oC:\ungoogled-chromium-windows\build -y
+        Remove-Item C:\ungoogled-chromium-windows\build\artifacts.zip
+    - name: Build
+      id: build
+      run: |
+        cd C:\ungoogled-chromium-windows
+        python build.py
+      continue-on-error: true
+    - name: Prepare Artifacts
+      if: steps.build.outcome != 'success'
+      run: |
+        7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
+      continue-on-error: true
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome != 'success'
+      with:
+        name: my-artifact
+        path: C:\ungoogled-chromium-windows\artifacts.zip
+    - uses: actions/upload-artifact@v2
+      if: steps.build.outcome == 'success'
+      with:
+        name: chromium
+        path: C:\ungoogled-chromium-windows\build\ungoogled-chromium*
