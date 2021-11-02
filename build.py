@@ -187,7 +187,7 @@ def main():
     # Run ninja
     try:
         _run_build_process('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
-                           'chromedriver', 'mini_installer', timeout=4*60*60)
+                           'chromedriver', 'mini_installer', timeout=600)
     except subprocess.TimeoutExpired:
         pass
 

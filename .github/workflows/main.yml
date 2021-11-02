@@ -16,8 +16,7 @@ jobs:
         python build.py
     - name: Prepare Artifacts
       run: |
-        7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3
-        Write-Host((Get-Item C:\ungoogled-chromium-windows\artifacts.zip).length/1GB)
+        7z a -tzip C:\ungoogled-chromium-windows\artifacts.zip C:\ungoogled-chromium-windows\build\src -mx=3 -mtc=on
       continue-on-error: true
     - uses: actions/upload-artifact@v2
       with:
