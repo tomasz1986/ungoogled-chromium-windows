@@ -212,9 +212,10 @@ def main():
         _run_build_process('out\\Default\\gn.exe', 'gen', 'out\\Default', '--fail-on-unused-args')
     # Run ninja
     _run_build_process_timeout('third_party\\ninja\\ninja.exe', '-C', 'out\\Default', 'chrome',
-                               'chromedriver', 'mini_installer', timeout=4*60*60)
+                               'chromedriver', 'mini_installer', timeout=5*60*60)
 
     # package
+    os.chdir(_ROOT_DIR)
     subprocess.run([sys.executable, 'package.py'])
 
 
