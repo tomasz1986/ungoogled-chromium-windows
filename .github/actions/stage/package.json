@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "setup": "npm install"
+  },
   "dependencies": {
     "@actions/artifact": "^0.6.1",
     "@actions/core": "^1.6.0",
