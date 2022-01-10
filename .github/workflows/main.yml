@@ -14,7 +14,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
@@ -34,7 +35,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
@@ -54,7 +56,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
@@ -74,7 +77,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
@@ -94,7 +98,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
@@ -114,7 +119,8 @@ jobs:
       - name: Init
         run: Copy-Item -Path . -Destination "C:\ungoogled-chromium-windows" -Recurse
       - name: Setup Stage
-        run: npm run setup --prefix ./.github/actions/stage
+        run: npm install
+        working-directory: ./.github/actions/stage
       - name: Run Stage
         id: stage
         uses: ./.github/actions/stage
