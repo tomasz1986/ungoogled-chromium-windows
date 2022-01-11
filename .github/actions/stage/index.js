@@ -5,6 +5,8 @@ const artifact = require('@actions/artifact');
 const glob = require('@actions/glob');
 
 async function run() {
+    process.on('SIGINT', function() {
+    })
     const finished = core.getBooleanInput('finished', {required: true});
     const from_artifact = core.getBooleanInput('from_artifact', {required: true});
     console.log(`finished: ${finished}, artifact: ${from_artifact}`);

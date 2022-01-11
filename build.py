@@ -20,8 +20,7 @@ import os
 import re
 import shutil
 import subprocess
-import signal
-import multiprocessing
+import ctypes
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'ungoogled-chromium' / 'utils'))
@@ -81,35 +80,13 @@ def _run_build_process_timeout(*args, timeout):
     cmd_input.append('set DEPOT_TOOLS_WIN_TOOLCHAIN=0')
     cmd_input.append(' '.join(map('"{}"'.format, args)))
     cmd_input.append('exit\n')
-    with subprocess.Popen(('cmd.exe', '/k'), encoding=ENCODING, stdin=subprocess.PIPE, creationflags=subprocess.CREATE_NEW_CONSOLE) as proc:
-        p = multiprocessing.Process(target=_timeout, args=(proc.pid, timeout))
-        p.start()
-        proc.communicate('\n'.join(cmd_input))
-        returncode = proc.wait()
-        p.kill()
-        p.join()
-        p.close()
-        if returncode != 0:
-            raise RuntimeError(f'return code {returncode}')
-
-
-def _timeout(pid, t):
-    time.sleep(t)
-    subprocess.run([
-        sys.executable,
-        "-c",
-        "import ctypes, sys;"
-        "kernel = ctypes.windll.kernel32;"
-        "pid = int(sys.argv[1]);"
-        "kernel.FreeConsole();"
-        "kernel.AttachConsole(pid);"
-        "kernel.SetConsoleCtrlHandler(None, 1);"
-        "kernel.GenerateConsoleCtrlEvent(0, 0);"
-        "sys.exit(0)",
-        str(pid)
-    ])  # Send Ctrl-C
-    # os.kill(pid, signal.CTRL_C_EVENT) doesn't work
-    # ref: https://stackoverflow.com/questions/7085604/sending-c-to-python-subprocess-objects-on-windows
+    with subprocess.Popen(('cmd.exe', '/k'), encoding=ENCODING, stdin=subprocess.PIPE) as proc:
+        proc.stdin.write('\n'.join(cmd_input))
+        proc.stdin.close()
+        try:
+            proc.wait(timeout)
+        except subprocess.TimeoutExpired:
+            ctypes.windll.kernel32.GenerateConsoleCtrlEvent(0, 0)
 
 
 def _make_tmp_paths():
